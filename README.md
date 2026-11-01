@@ -1,12 +1,17 @@
 # floria-card-models
 
-Floria 工作区预览卡片「模型」——在 Floria 预览面板里查看凭据池中的模型清单与端点，并为某个 provider 配置密钥。
+Floria 工作区预览卡片「模型」——在 Floria 预览面板里查看凭据池的供应商与模型，并勾选启用哪些模型。
 
 ## 功能
 
-- 读取网关凭据池，按 provider 分组列出模型与端点
-- 直接写入模型配置（新增 / 切换默认模型 / 保存密钥）
-- 单文件、零构建、无外部依赖（图标为内联 SVG）
+- **供应商列表**：品牌图标 + 已启用模型数 + base URL，右上角刷新 / 新增供应商，支持搜索
+- **供应商详情**：列出该供应商端点返回的全部模型（`/gateway/models/catalog`），点动作位 `+` / `✓` 勾选启用；「保存启用项」写回凭据池
+- **模型搜索**、手动补充模型（目录里没有的也能加）
+- **新增供应商**：填写 base URL / key / 模型，写前自动备份当前 `credentials.json`
+
+## 依赖
+
+结构、样式、图标来自 Floria 内置的 `@floria/web` 包（`/webui/floria-web.css`、`/webui/floria-web.iife.js`），需要随附 mgr 组件族的 Floria 版本；除此之外单文件、零构建、无外部依赖。
 
 ## 数据接口
 
@@ -14,9 +19,10 @@ Floria 工作区预览卡片「模型」——在 Floria 预览面板里查看�
 
 | 接口 | 用途 |
 |---|---|
-| `GET /gateway/models` | 模型与 provider 清单 |
-| `GET /gateway/file?label=&path=` | 读取模型配置文件 |
-| `POST /gateway/file/create` / `POST /gateway/file/write` | 新建 / 写入配置 |
+| `GET /gateway/file?label=&path=` | 读取 `.claude/credentials.json`（`ETag` = 毫秒 mtime，写回冲突基线） |
+| `POST /gateway/file/write` | 写回凭据池（带 `baseMtime` 冲突校验） |
+| `GET /gateway/models/catalog?provider=` | 供应商的实时模型目录（只读） |
+| `POST /gateway/file/create` + `POST /gateway/file/write` | 新增供应商前备份原文件 |
 | `?token=<网关 token>` | 非浏览器授权场景下的鉴权参数 |
 
 页面 URL 上的 `token` 查询参数会被自动拼到后续请求上。
